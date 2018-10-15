@@ -23,7 +23,7 @@ cmake_minimum_required(VERSION 3.6)
 #---------------------------------------------------------------------------------------
 
 # Allow switching of radios
-set(RADIO_LIST sx1272 sx1276 sx126x)
+set(RADIO_LIST sx1272 sx1276 sx126x virtual_radio)
 set(RADIO sx1272 CACHE STRING "Default radio is sx1272")
 set_property(CACHE RADIO PROPERTY STRINGS ${RADIO_LIST})
 set_property(CACHE RADIO PROPERTY ADVANCED)
@@ -36,15 +36,17 @@ file(GLOB ${PROJECT_NAME}_SOURCES "${RADIO}/*.c")
 
 add_library(${PROJECT_NAME} OBJECT EXCLUDE_FROM_ALL ${${PROJECT_NAME}_SOURCES})
 
-add_dependencies(${PROJECT_NAME} board)
+add_dependencies(${PROJECT_NAME} board debug)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/sx126x
     ${CMAKE_CURRENT_SOURCE_DIR}/sx1272
     ${CMAKE_CURRENT_SOURCE_DIR}/sx1276
+    ${CMAKE_CURRENT_SOURCE_DIR}/virtual_radio
     $<TARGET_PROPERTY:board,INTERFACE_INCLUDE_DIRECTORIES>
     $<TARGET_PROPERTY:system,INTERFACE_INCLUDE_DIRECTORIES>
+    $<TARGET_PROPERTY:debug,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
 ## TEMPORALLY WORKAROUND to allow radio debugging.

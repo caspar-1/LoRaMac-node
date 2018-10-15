@@ -57,6 +57,7 @@ add_executable(${PROJECT_NAME}-${CLASS}
                             $<TARGET_OBJECTS:system>
                             $<TARGET_OBJECTS:radio>
                             $<TARGET_OBJECTS:peripherals>
+                            $<TARGET_OBJECTS:debug>
                             $<TARGET_OBJECTS:${BOARD}>
 )
 
@@ -77,11 +78,19 @@ target_include_directories(${PROJECT_NAME}-${CLASS} PUBLIC
 
 set_property(TARGET ${PROJECT_NAME}-${CLASS} PROPERTY C_STANDARD 11)
 
-target_link_libraries(${PROJECT_NAME}-${CLASS} m)
 
+if(BOARD STREQUAL virtual)
+    find_package (Threads)
+    target_link_libraries(${PROJECT_NAME}-${CLASS} ${CMAKE_THREAD_LIBS_INIT} m)
+else()
+    target_link_libraries(${PROJECT_NAME}-${CLASS} m)
+endif()
 #---------------------------------------------------------------------------------------
 # Debugging and Binutils
 #---------------------------------------------------------------------------------------
+
+
+if(NOT BOARD STREQUAL virtual)
 
 include(gdb-helper)
 include(binutils-arm-none-eabi)
@@ -94,6 +103,10 @@ generate_vscode_launch_openocd(${PROJECT_NAME}-${CLASS})
 # Print section sizes of target
 print_section_sizes(${PROJECT_NAME}-${CLASS})
 
+
+
 # Create output in hex and binary format
 create_bin_output(${PROJECT_NAME}-${CLASS})
 create_hex_output(${PROJECT_NAME}-${CLASS})
+
+endif()
