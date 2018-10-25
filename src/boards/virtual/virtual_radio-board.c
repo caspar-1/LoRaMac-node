@@ -26,6 +26,7 @@
 #include "delay.h"
 #include "radio.h"
 #include "virtual_radio-board.h"
+#include "log.h"
 
 /*!
  * Flag used to set the RF switch control pins in low power mode when the radio is not active.
@@ -69,5 +70,6 @@ const struct Radio_s Radio =
 
 bool Virtual_Radio_CheckRfFrequency( uint32_t frequency )
 {
+    log_debug("F:%s (frequency=%d)", __func__, frequency);
     return true;
 }

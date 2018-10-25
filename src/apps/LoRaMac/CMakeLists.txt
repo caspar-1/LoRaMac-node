@@ -78,8 +78,13 @@ target_include_directories(${PROJECT_NAME}-${CLASS} PUBLIC
 
 set_property(TARGET ${PROJECT_NAME}-${CLASS} PROPERTY C_STANDARD 11)
 
-target_link_libraries(${PROJECT_NAME}-${CLASS} m)
 
+if(BOARD STREQUAL virtual)
+    find_package (Threads)
+    target_link_libraries(${PROJECT_NAME}-${CLASS} ${CMAKE_THREAD_LIBS_INIT} m)
+else()
+    target_link_libraries(${PROJECT_NAME}-${CLASS} m)
+endif()
 #---------------------------------------------------------------------------------------
 # Debugging and Binutils
 #---------------------------------------------------------------------------------------
@@ -97,6 +102,8 @@ include(binutils-arm-none-eabi)
 
 # Print section sizes of target
 #print_section_sizes(${PROJECT_NAME}-${CLASS})
+
+
 
 
 

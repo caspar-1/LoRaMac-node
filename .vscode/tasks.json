@@ -39,9 +39,13 @@
             "args": [
                 "clean"
             ],
+<<<<<<< HEAD
             "group": {
                 "kind": "build",
             },
+=======
+            "group":"build",
+>>>>>>> 0b7575066848d2ced02e2aa8389c309112f42cd6
             "problemMatcher": []
         }
     ]

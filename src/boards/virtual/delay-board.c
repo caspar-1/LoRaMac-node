@@ -23,8 +23,11 @@
  * \author    Johannes Bruder ( STACKFORCE )
  */
 #include "delay-board.h"
+#include <unistd.h>
+#include "log.h"
 
 void DelayMsMcu( uint32_t ms )
 {
-    
+    log_debug("F:%s (ms=%d)", __func__, ms);
+    usleep(ms*1000);
 }

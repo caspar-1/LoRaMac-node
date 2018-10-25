@@ -32,29 +32,34 @@
 #include "gpio.h"
 #include "lpm-board.h"
 #include "rtc-board.h"
+#include <unistd.h>
+#include "log.h"
+#include <time.h>
+#include <stdlib.h>
+#include <pthread.h>
 
 // MCU Wake Up Time
-#define MIN_ALARM_DELAY                             3 // in ticks
+#define MIN_ALARM_DELAY 10 // in ms
 
 // sub-second number of bits
-#define N_PREDIV_S                                  10
+#define N_PREDIV_S 10
 
 // Synchronous prediv
-#define PREDIV_S                                    ( ( 1 << N_PREDIV_S ) - 1 )
+#define PREDIV_S ((1 << N_PREDIV_S) - 1)
 
 // Asynchronous prediv
-#define PREDIV_A                                    ( 1 << ( 15 - N_PREDIV_S ) ) - 1
+#define PREDIV_A (1 << (15 - N_PREDIV_S)) - 1
 
 // Sub-second mask definition
-#define ALARM_SUBSECOND_MASK                        ( N_PREDIV_S << RTC_ALRMASSR_MASKSS_Pos )
+#define ALARM_SUBSECOND_MASK (N_PREDIV_S << RTC_ALRMASSR_MASKSS_Pos)
 
 // RTC Time base in us
-#define USEC_NUMBER                                 1000000
-#define MSEC_NUMBER                                 ( USEC_NUMBER / 1000 )
+#define USEC_NUMBER 1000000
+#define MSEC_NUMBER (USEC_NUMBER / 1000)
 
-#define COMMON_FACTOR                               3
-#define CONV_NUMER                                  ( MSEC_NUMBER >> COMMON_FACTOR )
-#define CONV_DENOM                                  ( 1 << ( N_PREDIV_S - COMMON_FACTOR ) )
+#define COMMON_FACTOR 3
+#define CONV_NUMER (MSEC_NUMBER >> COMMON_FACTOR)
+#define CONV_DENOM (1 << (N_PREDIV_S - COMMON_FACTOR))
 
 /*!
  * \brief Days, Hours, Minutes and seconds
@@ -76,22 +81,41 @@
 /*!
  * \brief Calculates ceiling( X / N )
  */
-#define DIVC( X, N )                                ( ( ( X ) + ( N ) -1 ) / ( N ) )
+#define DIVC(X, N) (((X) + (N)-1) / (N))
 
+#define ALARM_TICk_TIME_mS 10
+pthread_t thread_timer_loop;
 
+static uint32_t alarm_timer = 0;
+static uint32_t alarm_timer_set = 0;
+static uint32_t now = 0;
 
-
-
-
-void RtcInit( void )
+void *RTC_thread_function(void *ptr)
 {
-
+    while (1)
+    {
+        usleep(ALARM_TICk_TIME_mS * 1000);
+        now++;
+        if (alarm_timer == now)
+        {
+            log_debug("F:%s Timer Fired!", __func__);
+            TimerIrqHandler();
+        }
+    }
 }
 
-
-uint32_t RtcSetTimerContext( void )
+void RtcInit(void)
 {
-    return 0;
+    log_debug("F:%s", __func__);
+    pthread_create(&thread_timer_loop, NULL, RTC_thread_function, (void *)0);
+}
+
+uint32_t RtcSetTimerContext(void)
+{
+
+    alarm_timer_set = now;
+    log_debug("F:%s --> %d", __func__, alarm_timer_set);
+    return alarm_timer_set;
 }
 
 /*!
@@ -100,9 +124,10 @@ uint32_t RtcSetTimerContext( void )
  * \param none
  * \retval timerValue In ticks
  */
-uint32_t RtcGetTimerContext( void )
+uint32_t RtcGetTimerContext(void)
 {
-    return 0;
+    log_debug("F:%s -->%d", __func__, alarm_timer_set);
+    return alarm_timer_set;
 }
 
 /*!

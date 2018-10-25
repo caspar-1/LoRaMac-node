@@ -41,19 +41,16 @@
 #include "board.h"
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
+#include <pthread.h>
 
 /*!
  * LED GPIO pins objects
  */
-Gpio_t LedRed;    // Active Low
-Gpio_t LedYellow; // Active Low
-Gpio_t LedGreen;  // Active Low
-Gpio_t LedUsr;    // Active High
 
-/*!
- * PushButton GPIO pin object
- */
-Gpio_t PushButton;
+Gpio_t Led1;
+Gpio_t Led2;
+Gpio_t Led3;
+Gpio_t Led4;
 
 /*
  * MCU objects
@@ -61,63 +58,10 @@ Gpio_t PushButton;
 Adc_t Adc;
 I2c_t I2c;
 Uart_t Uart1;
-Uart_t Uart2;
 
-/*!
- * Initializes the unused GPIO to a know status
- */
-static void BoardUnusedIoInit(void);
+static pthread_mutex_t cs_mutex =  PTHREAD_MUTEX_INITIALIZER;
 
-/*!
- * System Clock Configuration
- */
-static void SystemClockConfig(void);
 
-/*!
- * Used to measure and calibrate the system wake-up time from STOP mode
- */
-static void CalibrateSystemWakeupTime(void);
-
-/*!
- * System Clock Re-Configuration when waking up from STOP mode
- */
-static void SystemClockReConfig(void);
-
-/*!
- * Timer used at first boot to calibrate the SystemWakeupTime
- */
-static TimerEvent_t CalibrateSystemWakeupTimeTimer;
-
-/*!
- * Flag to indicate if the MCU is Initialized
- */
-static bool McuInitialized = false;
-
-/*!
- * Flag used to indicate if board is powered from the USB
- */
-static bool UsbIsConnected = false;
-
-/*!
- * UART2 FIFO buffers size
- */
-#define UART2_FIFO_TX_SIZE 2048
-#define UART2_FIFO_RX_SIZE 2048
-
-uint8_t Uart2TxBuffer[UART2_FIFO_TX_SIZE];
-uint8_t Uart2RxBuffer[UART2_FIFO_RX_SIZE];
-
-/*!
- * Flag to indicate if the SystemWakeupTime is Calibrated
- */
-static volatile bool SystemWakeupTimeCalibrated = false;
-
-/*!
- * Callback indicating the end of the system wake-up time calibration
- */
-static void OnCalibrateSystemWakeupTimeTimerEvent(void)
-{
-}
 
 /*!
  * Holds the bord version.
@@ -126,18 +70,22 @@ static Version_t BoardVersion = {0};
 
 void BoardCriticalSectionBegin(uint32_t *mask)
 {
+    pthread_mutex_lock( &cs_mutex );
 }
 
 void BoardCriticalSectionEnd(uint32_t *mask)
 {
+    pthread_mutex_unlock( &cs_mutex );
 }
 
 void BoardInitPeriph(void)
 {
+  
 }
 
 void BoardInitMcu(void)
 {
+    RtcInit();
 }
 
 void BoardResetMcu(void)
