@@ -57,6 +57,7 @@ add_executable(${PROJECT_NAME}-${CLASS}
                             $<TARGET_OBJECTS:system>
                             $<TARGET_OBJECTS:radio>
                             $<TARGET_OBJECTS:peripherals>
+                            $<TARGET_OBJECTS:debug>
                             $<TARGET_OBJECTS:${BOARD}>
 )
 
@@ -83,17 +84,24 @@ target_link_libraries(${PROJECT_NAME}-${CLASS} m)
 # Debugging and Binutils
 #---------------------------------------------------------------------------------------
 
+
+if(NOT BOARD STREQUAL virtual)
+
 include(gdb-helper)
 include(binutils-arm-none-eabi)
 
 # Generate debugger configurations
-generate_run_gdb_stlink(${PROJECT_NAME}-${CLASS})
-generate_run_gdb_openocd(${PROJECT_NAME}-${CLASS})
-generate_vscode_launch_openocd(${PROJECT_NAME}-${CLASS})
+#generate_run_gdb_stlink(${PROJECT_NAME}-${CLASS})
+#generate_run_gdb_openocd(${PROJECT_NAME}-${CLASS})
+#generate_vscode_launch_openocd(${PROJECT_NAME}-${CLASS})
 
 # Print section sizes of target
-print_section_sizes(${PROJECT_NAME}-${CLASS})
+#print_section_sizes(${PROJECT_NAME}-${CLASS})
+
+
 
 # Create output in hex and binary format
 create_bin_output(${PROJECT_NAME}-${CLASS})
 create_hex_output(${PROJECT_NAME}-${CLASS})
+
+endif()

@@ -45,7 +45,7 @@
 
         // Target board, the following boards are supported:
         // NAMote72, NucleoL073 (Default), NucleoL152, SAML21, SKiM880B, SKiM980A and SKiM881AXL.
-        "BOARD":"NucleoL073",
+        "BOARD":"badrabbit_001",
 
         // MBED Radio shield selection. (Applies only to Nucleo platforms)
         // The following shields are supported:
@@ -64,5 +64,11 @@
         "REGION_KR920":"OFF",
         "REGION_IN865":"OFF",
         "REGION_RU864":"OFF"
+    },
+    "files.associations": {
+        "virtual_radio-board.h": "c",
+        "board-config.h": "c",
+        "virtual_radio.h": "c",
+        "hal_delay.h": "c"
     }
 }

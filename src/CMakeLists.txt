@@ -23,7 +23,7 @@ cmake_minimum_required(VERSION 3.6)
 #---------------------------------------------------------------------------------------
 
 # Allow switching of target platform
-set(BOARD_LIST NAMote72 NucleoL073 NucleoL152 SAML21 SKiM880B SKiM980A SKiM881AXL)
+set(BOARD_LIST NAMote72 NucleoL073 NucleoL152 SAML21 SKiM880B SKiM980A SKiM881AXL virtual badrabbit_001)
 set(BOARD NucleoL073 CACHE STRING "Default target platform is NucleoL073")
 set_property(CACHE BOARD PROPERTY STRINGS ${BOARD_LIST})
 
@@ -145,6 +145,27 @@ elseif(BOARD STREQUAL SKiM881AXL)
 
     # Configure radio
     set(RADIO sx1272 CACHE INTERNAL "Radio sx1272 selected")
+
+elseif(BOARD STREQUAL virtual)
+    # Configure toolchain for gcc
+
+    # Build platform specific board implementation
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/virtual)
+
+    # Configure radio
+    set(RADIO virtual_radio CACHE INTERNAL "Radio virtual selected")
+
+
+elseif(BOARD STREQUAL badrabbit_001)
+    # Configure toolchain for gcc
+    set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/boards/badrabbit_001/cmsis/arm-gcc/stm32l152xc_flash.ld)
+    include(stm32l1)
+
+    # Build platform specific board implementation
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/badrabbit_001)
+
+    # Configure radio
+    set(RADIO sx1272 CACHE INTERNAL "Radio sx1272 selected")
 endif()
 
 #---------------------------------------------------------------------------------------
@@ -160,6 +181,8 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/system)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/mac)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/peripherals)
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/debug)
 
 #---------------------------------------------------------------------------------------
 # Applications
